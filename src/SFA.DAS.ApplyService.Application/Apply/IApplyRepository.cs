@@ -18,7 +18,6 @@ namespace SFA.DAS.ApplyService.Application.Apply
         Task<Guid> CreateApplication(string applicationType, Guid applyingOrganisationId, Guid userId, Guid workflowId);
         Task<Guid> GetLatestWorkflow(string applicationType);
         Task<List<ApplicationSection>> CopyWorkflowToApplication(Guid applicationId, Guid workflowId, string organisationType);
-        Task CompleteSection(ApplicationSection section);
         Task UpdateSections(List<ApplicationSection> sections);
         Task SaveSection(ApplicationSection section, Guid? userId = null);
         Task<Guid> CreateNewWorkflow(string workflowType);
@@ -39,6 +38,8 @@ namespace SFA.DAS.ApplyService.Application.Apply
         Task StartApplicationReview(Guid applicationId, int sectionId);
         Task StartFinancialReview(Guid applicationId);
         Task<Organisation> GetOrganisationForApplication(Guid applicationId);
+
+        Task<string> CheckOrganisationStandardStatus(Guid applicationId, int standardId);
         Task<List<dynamic>> GetPreviousFinancialApplications();
 
         Task ClearAssets();
