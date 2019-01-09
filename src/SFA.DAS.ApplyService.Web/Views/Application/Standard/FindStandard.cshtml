@@ -40,9 +40,9 @@
                         <span id="search-string-error" class="govuk-error-message">Enter 2 or more characters to search</span>
                     }
 
-                    <input class="govuk-input govuk-input--width-20 ui-autocomplete-input @(!ViewData.ModelState.IsValid || showErrors ? "govuk-input--error" : "")" id="standard-name" name="StandardToFind" asp-for="@Model.StandardToFind"type="text" value="" autocomplete="off">
+                    <input class="govuk-input govuk-input--width-20 @(!ViewData.ModelState.IsValid || showErrors ? "govuk-input--error" : "")" id="standard-name" name="StandardToFind" asp-for="@Model.StandardToFind"type="text" value="" autocomplete="off">
                 </div>
-
+                
                 @*
                 <h2 class="govuk-heading-m js-no-results" style="display: none;">No results found</h2>
                 <p class="govuk-body js-no-results" style="display: none;">Details about standards can be found on the <a href="#" class="govuk-link">Institute for Apprenticeships (IFA)</a> website.</p>
@@ -61,6 +61,22 @@
 
             </form>
         </div>
+
+        <div class="govuk-grid-column-two-thirds">
+            <form class="js-standard-search-form" action="">
+                <div class="govuk-form-group">
+                    <div class="js-standard-search autocomplete-wrapper">
+                        <p class="js-loading govuk-body-l">Loading...</p>
+                    </div>
+                </div>
+                <div class="govuk-form-group">
+                    <button type="submit" class="govuk-button">
+                        Continue
+                    </button>
+                </div>
+            </form>
+        </div>
+
     </div>
 
     
@@ -68,3 +84,12 @@
     <a href="@Url.Action("Search", "Standard", new {search = "test"})"></a>
 
 </main>
+
+@section Styles {
+    <link href="@Url.Content("~/stylesheets/accessible-autocomplete.min.css")" rel="stylesheet" type="text/css" />
+}
+
+@section Scripts {
+    <script src="@Url.Content("~/javascripts/accessible-autocomplete.min.js")"></script>
+    @{ await Html.RenderPartialAsync("~/Views/Application/Standard/_StandardScriptsPartial.cshtml"); }
+}

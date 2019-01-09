@@ -61,6 +61,31 @@
   margin-bottom: 40px;
 }
 
+.autocomplete__hint,
+.autocomplete__input,
+.autocomplete__option {
+  font-family: "nta", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.autocomplete__input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 40px;
+  margin-top: 0;
+  padding: 5px;
+  border: 2px solid #0b0c0c;
+  border-radius: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.js-hidden {
+  display: none;
+}
+
 @media print {
   .app-check-your-answers {
     font-family: sans-serif;

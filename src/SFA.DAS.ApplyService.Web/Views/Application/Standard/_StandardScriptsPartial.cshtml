@@ -1,0 +1,106 @@
+<script type="text/javascript">
+
+//  https://localhost:6016/assets/all-standards.json
+
+//  $.getJSON( "/assets/all-standards.json", function( standards ) {
+//
+//    var titles = $.map( standards, function( standard ) {
+//      return standard.title
+//    });
+//
+//    var element = document.querySelector('.js-standard-search')
+//    var id = 'autocomplete-default'
+//    accessibleAutocomplete({
+//      element: element,
+//      id: id,
+//      // minLength: 2,
+//      source: titles
+//    })
+//
+//  });
+
+
+//  fetch('/assets/all-standards.json')
+//    .then(blob => blob.json())
+//    .then(standardsData => {
+//        // console.log(standardsData)
+//        const titles = standardsData.map(standard => standard.title)
+//        var element = document.querySelector('.js-standard-search')
+//        var id = 'standard-name'
+//        accessibleAutocomplete({
+//          element: element,
+//          id: id,
+//          minLength: 2,
+//          source: titles,
+//          onConfirm: function(option) {
+//            if (!option) return;
+//            const selectedStandard = standardsData.filter(standard => option === standard.title);
+//            var pathArray = window.location.pathname.split('/')
+//            var applicationId = pathArray[pathArray.length - 1];
+//
+//            var form = document.querySelector('.js-standard-search-form')
+//            if (form) form.action = '/standard/confirm-standard/' + applicationId + '/standard/' + selectedStandard[0].standardId
+//
+//            // https://localhost:6016/standard/confirm-standard/fdff6320-6337-44eb-8dde-9423f5f00d68/standard/153
+//          }
+//        })
+//    })
+//    .catch(e => {
+//      console.log(e);
+//      return e;
+//    });
+
+  var getJSON = function(url, successHandler, errorHandler) {
+    var xhr = typeof XMLHttpRequest != 'undefined'
+      ? new XMLHttpRequest()
+      : new ActiveXObject('Microsoft.XMLHTTP');
+    xhr.open('get', url, true);
+    xhr.onreadystatechange = function() {
+      var status;
+      var data;
+      // https://xhr.spec.whatwg.org/#dom-xmlhttprequest-readystate
+      if (xhr.readyState == 4) { // `DONE`
+        status = xhr.status;
+        if (status == 200) {
+          data = JSON.parse(xhr.responseText);
+          successHandler && successHandler(data);
+        } else {
+          errorHandler && errorHandler(status);
+        }
+      }
+    };
+    xhr.send();
+  };
+
+  var standardsLoading = document.querySelector('.js-loading');
+
+  getJSON('/assets/all-standards.json', function(standardsData) {
+    var titles = standardsData.map(function(standard) {
+      return standard.title
+    })
+
+    standardsLoading.classList.add('js-hidden')
+    var element = document.querySelector('.js-standard-search');
+    var id = 'standard-name'
+    accessibleAutocomplete({
+      element: element,
+      id: id,
+      minLength: 2,
+      source: titles,
+      onConfirm: function(option) {
+        if (!option) return;
+        const selectedStandard = standardsData.filter(standard => option === standard.title);
+        var pathArray = window.location.pathname.split('/');
+        var applicationId = pathArray[pathArray.length - 1];
+        var form = document.querySelector('.js-standard-search-form');
+
+        if (form) {
+          form.action = '/standard/confirm-standard/' + applicationId + '/standard/' + selectedStandard[0].standardId
+        }
+        // https://localhost:6016/standard/confirm-standard/fdff6320-6337-44eb-8dde-9423f5f00d68/standard/153
+      }
+    })
+  }, function(status) {
+    alert('Something went wrong: ' + status);
+  });
+</script>
