@@ -1,0 +1,34 @@
+@model SFA.DAS.ApplyService.Web.ViewModels.OrganisationSearchViewModel
+
+@{
+    ViewBag.Title = "Access denied";
+    Layout = "_Layout";
+}
+
+<a asp-action="Results" asp-controller="OrganisationSearch" asp-route-searchString="@Model.SearchString" class="govuk-back-link">Back to search results</a>
+
+<main class="govuk-main-wrapper " id="main-content" role="main">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <form method="post" asp-action="RequestAccess" asp-controller="OrganisationSearch" novalidate>
+                <input asp-for="SearchString" type="hidden" />
+                <input asp-for="Name" type="hidden" />
+                <input asp-for="Ukprn" type="hidden" />
+                <input asp-for="OrganisationType" type="hidden" />
+                <input asp-for="Postcode" type="hidden" />
+
+                <div class="govuk-form-group">
+                    <h1 class="govuk-heading-xl">Access denied</h1>
+
+                    <p class="govuk-body">You do not have access to @(Model.Name)'s end-point assessment services.</p>
+
+                    <button type="submit" class="govuk-button">Request access</button>
+                </div>
+            </form>
+
+            <p class="govuk-body">
+                <a class="govuk-link" asp-action="Results" asp-controller="OrganisationSearch" asp-route-searchString="@Model.SearchString">Back to search results</a>
+            </p>
+        </div>
+    </div>
+</main>

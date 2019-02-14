@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.ApplyService.Configuration;
 using SFA.DAS.ApplyService.InternalApi.Types;
 using SFA.DAS.ApplyService.Session;
 using SFA.DAS.ApplyService.Web.Infrastructure;
@@ -7,7 +7,6 @@ using SFA.DAS.ApplyService.Web.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApplyService.Web.Controllers
@@ -18,14 +17,16 @@ namespace SFA.DAS.ApplyService.Web.Controllers
         private readonly OrganisationApiClient _organisationApiClient;
         private readonly OrganisationSearchApiClient _apiClient;
         private readonly ISessionService _sessionService;
+        private readonly IConfigurationService _configService;
 
         public OrganisationSearchController(IUsersApiClient usersApiClient, OrganisationApiClient organisationApiClient,
-            OrganisationSearchApiClient apiClient, ISessionService sessionService)
+            OrganisationSearchApiClient apiClient, ISessionService sessionService, IConfigurationService configService)
         {
             _usersApiClient = usersApiClient;
             _organisationApiClient = organisationApiClient;
             _apiClient = apiClient;
             _sessionService = sessionService;
+            _configService = configService;
         }
 
         [HttpGet]
@@ -141,8 +142,18 @@ namespace SFA.DAS.ApplyService.Web.Controllers
 
             if (organisationSearchResult != null)
             {
-                viewModel.Organisations = new List<OrganisationSearchResult> { organisationSearchResult };
-                viewModel.OrganisationTypes = await _apiClient.GetOrganisationTypes();
+                var userOrg = await _apiClient.GetOrganisationByEmail(user.Email);
+
+                if (organisationSearchResult.RoEPAOApproved && organisationSearchResult.Ukprn != userOrg?.Ukprn)
+                {
+                    // Result is on RoEPAO but the user does not belong to that organisation
+                    return View(nameof(AccessDenined), viewModel);
+                }
+                else
+                {
+                    viewModel.Organisations = new List<OrganisationSearchResult> { organisationSearchResult };
+                    viewModel.OrganisationTypes = await _apiClient.GetOrganisationTypes();
+                }
             }
 
             return View(viewModel);
@@ -175,9 +186,18 @@ namespace SFA.DAS.ApplyService.Web.Controllers
 
             if (organisationSearchResult != null)
             {
-                var orgThatWasCreated = await _organisationApiClient.Create(organisationSearchResult, user.Id);
+                var userOrg = await _apiClient.GetOrganisationByEmail(user.Email);
 
-                return RedirectToAction("Applications", "Application");
+                if (organisationSearchResult.RoEPAOApproved && organisationSearchResult.Ukprn != userOrg?.Ukprn)
+                {
+                    // Result is on RoEPAO but the user does not belong to that organisation
+                    return View(nameof(AccessDenined), viewModel);
+                }
+                else
+                {
+                    var orgThatWasCreated = await _organisationApiClient.Create(organisationSearchResult, user.Id);
+                    return RedirectToAction("Applications", "Application");
+                }
             }
             else
             {
@@ -186,6 +206,36 @@ namespace SFA.DAS.ApplyService.Web.Controllers
             }
         }
 
+        [HttpPost]
+        public IActionResult AccessDenined(OrganisationSearchViewModel viewModel)
+        {
+            if (string.IsNullOrEmpty(viewModel.Name) || viewModel.SearchString.Length < 2)
+            {
+                ModelState.AddModelError(nameof(viewModel.Name), "Enter a valid search string");
+                TempData["ShowErrors"] = true;
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AccessRequested(OrganisationSearchViewModel viewModel)
+        {
+            if (string.IsNullOrEmpty(viewModel.Name) || viewModel.SearchString.Length < 2)
+            {
+                ModelState.AddModelError(nameof(viewModel.Name), "Enter a valid search string");
+                TempData["ShowErrors"] = true;
+                return RedirectToAction(nameof(Index));
+            }
+
+            // TODO: Call out to Assessor to request user access to the selected organisation
+
+            var config = await _configService.GetConfig();
+            viewModel.FeedbackUrl = config.FeedbackUrl;
+
+            return View(viewModel);
+        }
 
         private async Task<OrganisationSearchResult> GetOrganisation(string searchString, string name, int? ukprn, string organisationType, string postcode)
         {

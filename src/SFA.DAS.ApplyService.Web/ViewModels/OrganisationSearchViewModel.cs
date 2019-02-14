@@ -16,6 +16,8 @@ namespace SFA.DAS.ApplyService.Web.ViewModels
 
         public string OrganisationType { get; set; }
 
+        public string FeedbackUrl { get; set; }
+
         [JsonIgnore]
         public IEnumerable<OrganisationSearchResult> Organisations { get; set; }
 
