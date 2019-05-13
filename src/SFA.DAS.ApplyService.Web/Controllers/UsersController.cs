@@ -71,16 +71,10 @@ namespace SFA.DAS.ApplyService.Web.Controllers
         public async Task<IActionResult> SignOut()
         {
             _contextAccessor.HttpContext.Session.Clear();
-            foreach (var cookie in _contextAccessor.HttpContext.Request.Cookies.Keys)
-            {
-                _contextAccessor.HttpContext.Response.Cookies.Delete(cookie);
-            }
 
-            if (string.IsNullOrEmpty(_contextAccessor.HttpContext.User.FindFirstValue("display_name")))
-                return SignOut("Cookies", "oidc");
-            
-            var assessorServiceBaseUrl = (await _config.GetConfig()).AssessorServiceBaseUrl;
-            return Redirect($"{assessorServiceBaseUrl}/Account/SignOut");
+            // The Login Service database [IdentityServer].[ClientPostLogoutRedirectUris] should be updated to redirect to assessor
+            // after sign out from Apply
+            return SignOut("Cookies", "oidc");
         }
 
         public IActionResult InviteSent()
