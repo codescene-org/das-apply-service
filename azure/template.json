@@ -118,6 +118,10 @@
                             {
                                 "name": "WEBSITE_SWAP_WARMUP_PING_STATUSES",
                                 "value": "200"
+                            },
+                            {
+                                "name": "WEBSITE_LOCAL_CACHE_OPTION",
+                                "value": "Always"
                             }
                         ]
                     },
@@ -187,6 +191,10 @@
                             {
                                 "name": "WEBSITE_SWAP_WARMUP_PING_STATUSES",
                                 "value": "200"
+                            },
+                            {
+                                "name": "WEBSITE_LOCAL_CACHE_OPTION",
+                                "value": "Always"
                             }
                         ]
                     },
