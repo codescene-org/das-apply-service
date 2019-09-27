@@ -193,6 +193,31 @@ namespace SFA.DAS.ApplyService.Web.Controllers
             throw new BadRequestException("Section does not have a valid DisplayType");
         }
 
+        public async Task<IActionResult> Skip(Guid applicationId, int sequenceId, int sectionId, string pageId)
+        {
+            var sequences = await _qnaApiClient.GetSequences(applicationId);
+            var selectedSequence = sequences.Single(x => x.SequenceId == sequenceId);
+            var sections = await _qnaApiClient.GetSections(applicationId, selectedSequence.Id);
+
+            var currentSection = sections.Single(x => x.SectionId == sectionId);
+
+            var section = await _qnaApiClient.GetSection(applicationId, currentSection.Id);
+
+            if (sequenceId == RoatpWorkflowSequenceIds.YourOrganisation &&
+                sectionId == RoatpWorkflowSectionIds.YourOrganisation.OrganisationDetails)
+            {
+                await RemoveIrrelevantQuestions(applicationId, section);
+            }
+
+            var currentPage = section.QnAData.Pages.First(x=>x.PageId==pageId);
+            var nextPageId = currentPage.Next.FirstOrDefault(x => x.Condition == null)?.ReturnId;   
+
+            if (nextPageId == null || section.QnAData.Pages.FirstOrDefault(x => x.PageId == nextPageId) == null)
+                return await TaskList(applicationId);
+
+
+                return await Page(applicationId, sequenceId, currentSection.SectionId, nextPageId, "TaskList");
+        }
         public async Task<IActionResult> Section(Guid applicationId, int sequenceId, int sectionId)
         {
             var sequences = await _qnaApiClient.GetSequences(applicationId);
