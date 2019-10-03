@@ -215,9 +215,9 @@ namespace SFA.DAS.ApplyService.Web.Controllers
             if (nextPageId == null || section.QnAData.Pages.FirstOrDefault(x => x.PageId == nextPageId) == null)
                 return await TaskList(applicationId);
 
-
-                return await Page(applicationId, sequenceId, currentSection.SectionId, nextPageId, "TaskList");
+            return await Page(applicationId, sequenceId, currentSection.SectionId, nextPageId, "TaskList");
         }
+
         public async Task<IActionResult> Section(Guid applicationId, int sequenceId, int sectionId)
         {
             var sequences = await _qnaApiClient.GetSequences(applicationId);
