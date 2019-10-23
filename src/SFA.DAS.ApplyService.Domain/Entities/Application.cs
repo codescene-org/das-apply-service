@@ -29,6 +29,7 @@ namespace SFA.DAS.ApplyService.Domain.Entities
     {
         public const string InProgress = "In Progress";
         public const string Submitted = "Submitted";
+        public const string UnderReview = "UnderReview";
         public const string FeedbackAdded = "FeedbackAdded";
         public const string Rejected = "Rejected";
         public const string Approved = "Approved";

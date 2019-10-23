@@ -53,5 +53,18 @@ namespace SFA.DAS.ApplyService.Application.Apply
         Task<bool> IsSectionCompleted(Guid applicationId, Guid applicationSectionId);
 
         Task RemoveSectionCompleted(Guid applicationId, Guid applicationSectionId);
+
+
+        Task<List<Domain.Entities.Application>> GetApplicationsByStatus(string status);
+        Task CreateApplicationReview(Guid newApplicationReviewId, Guid applicationId);
+        Task<List<Domain.Entities.ApplicationReview>> GetActiveApplicationReviews();
+        Task<Domain.Entities.ApplicationReview> GetApplicationReview(Guid applicationId);
+        Task UpdateApplicationReviewGatewayReview(Guid applicationId, string status);
+        Task UpdateApplicationReviewPmoReview(Guid applicationId, string status);
+        Task UpdateApplicationReviewAssessor1Review(Guid applicationId, string assessor1ReviewStatus);
+        Task UpdateApplicationReviewAssessor1Comments(Guid applicationId, PageComments assessorReview1Comments);
+        Task UpdateApplicationReviewAssessor2Review(Guid applicationId, string assessor2ReviewStatus);
+        Task UpdateApplicationReviewAssessor2Comments(Guid applicationId, PageComments assessorReview2Comments);
+        Task UpdateApplicationReviewAssessorModeration(Guid applicationId, string assessorModerationStatus);
     }
 }

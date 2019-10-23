@@ -29,8 +29,7 @@ namespace SFA.DAS.ApplyService.Web.Infrastructure.Services
             var sequenceDescription = _configuration.FirstOrDefault(x => x.Id == sequenceId);
 
             return sequenceDescription?.StartupPages
-                .FirstOrDefault(x => x.ProviderTypeId == providerTypeId)
-                ?.PageId;
+                ?.FirstOrDefault(x => x.ProviderTypeId == providerTypeId)?.PageId;
         }
 
 

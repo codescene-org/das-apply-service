@@ -27,6 +27,7 @@ namespace SFA.DAS.ApplyService.Data
             SqlMapper.AddTypeHandler(typeof(QnAData), new QnADataHandler());
             SqlMapper.AddTypeHandler(typeof(ApplicationData), new ApplicationDataHandler());
             SqlMapper.AddTypeHandler(typeof(FinancialApplicationGrade), new FinancialApplicationGradeDataHandler());
+            SqlMapper.AddTypeHandler(typeof(PageComments), new PageCommentHandler());
         }
 
         public async Task<List<Domain.Entities.Application>> GetUserApplications(Guid userId)
@@ -963,6 +964,112 @@ namespace SFA.DAS.ApplyService.Data
                         applicationId,
                         applicationSectionId
                     });
+            }
+        }
+
+        public async Task<List<Domain.Entities.Application>> GetApplicationsByStatus(string status)
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                return (await connection.QueryAsync<Domain.Entities.Application>(@"SELECT a.* FROM Applications a WHERE a.ApplicationStatus = @status", new { status })).ToList();
+            }
+        }
+
+        public async Task CreateApplicationReview(Guid newApplicationReviewId, Guid applicationId)
+        {
+            const string SQL = @"INSERT INTO ApplicationReviews
+           (Id, ApplicationId, IsActive, GatewayReviewStatus, PmoReviewStatus, AssessorReview1Status, AssessorReview2Status, AssessorModerationStatus)
+            VALUES
+           (@id, @applicationId, @isActive, @gatewayReviewStatus, @pmoReviewStatus, @assessorReview1Status, @assessorReview2Status, @assessorModerationStatus)";
+
+            var values = new
+            {
+                Id = newApplicationReviewId,
+                ApplicationId = applicationId,
+                IsActive = true,
+                Status = ApplicationReviewStatus.UnderReview,
+                GatewayReviewStatus = ApplicationReviewStatus.Pending,
+                PmoReviewStatus = ApplicationReviewStatus.Pending,
+                AssessorReview1Status = ApplicationReviewStatus.Pending,
+                AssessorReview2Status = ApplicationReviewStatus.Pending,
+                AssessorModerationStatus = ApplicationReviewStatus.Pending
+            };
+
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                await connection.ExecuteAsync(SQL, values);
+            }
+        }
+
+        public async Task<List<ApplicationReview>> GetActiveApplicationReviews()
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                return (await connection.QueryAsync<ApplicationReview>("SELECT * FROM ApplicationReviews WHERE IsActive = 1")).ToList();
+            }
+        }
+
+        public async Task<ApplicationReview> GetApplicationReview(Guid applicationId)
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                return (await connection.QueryAsync<ApplicationReview>(@"SELECT r.* FROM ApplicationReviews r WHERE r.ApplicationId = @applicationId", new { applicationId })).FirstOrDefault();
+            }
+        }
+
+        public async Task UpdateApplicationReviewGatewayReview(Guid applicationId, string gatewayReviewStatus)
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                await connection.ExecuteAsync(@"UPDATE ApplicationReviews SET GatewayReviewStatus = @gatewayReviewStatus WHERE ApplicationId = @applicationId", new { applicationId, gatewayReviewStatus });
+            }
+        }
+
+        public async Task UpdateApplicationReviewPmoReview(Guid applicationId, string pmoReviewStatus)
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                await connection.ExecuteAsync(@"UPDATE ApplicationReviews SET PmoReviewStatus = @pmoReviewStatus WHERE ApplicationId = @applicationId", new { applicationId, pmoReviewStatus });
+            }
+        }
+
+        public async Task UpdateApplicationReviewAssessor1Review(Guid applicationId, string assessorReview1Status)
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                await connection.ExecuteAsync(@"UPDATE ApplicationReviews SET AssessorReview1Status = @assessorReview1Status WHERE ApplicationId = @applicationId", new { applicationId, assessorReview1Status });
+            }
+        }
+
+        public async Task UpdateApplicationReviewAssessor1Comments(Guid applicationId, PageComments assessorReview1Comments)
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                await connection.ExecuteAsync(@"UPDATE ApplicationReviews SET AssessorReview1Comments = @assessorReview1Comments WHERE ApplicationId = @applicationId", new { applicationId, assessorReview1Comments });
+            }
+        }
+
+        public async Task UpdateApplicationReviewAssessor2Review(Guid applicationId, string assessorReview2Status)
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                await connection.ExecuteAsync(@"UPDATE ApplicationReviews SET AssessorReview2Status = @assessorReview2Status WHERE ApplicationId = @applicationId", new { applicationId, assessorReview2Status });
+            }
+        }
+
+        public async Task UpdateApplicationReviewAssessor2Comments(Guid applicationId, PageComments assessorReview2Comments)
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                await connection.ExecuteAsync(@"UPDATE ApplicationReviews SET AssessorReview2Comments = @assessorReview2Comments WHERE ApplicationId = @applicationId", new { applicationId, assessorReview2Comments });
+            }
+        }
+
+        public async Task UpdateApplicationReviewAssessorModeration(Guid applicationId, string assessorModerationStatus)
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                await connection.ExecuteAsync(@"UPDATE ApplicationReviews SET AssessorModerationStatus = @assessorModerationStatus WHERE ApplicationId = @applicationId", new { applicationId, assessorModerationStatus });
             }
         }
     }

@@ -186,5 +186,11 @@ namespace SFA.DAS.ApplyService.InternalApi.Controllers
         {
             await _mediator.Send(new RemoveApplicationSectionCompletedRequest(applicationId, applicationSectionId));
         }
+
+        [HttpGet("/Applications/Status/{status}")]
+        public async Task<ActionResult<List<Domain.Entities.Application>>> GetApplicationsByStatus(string status)
+        {
+            return await _mediator.Send(new GetApplicationsByStatusRequest(status));
+        }
     }
 }
