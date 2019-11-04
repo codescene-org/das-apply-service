@@ -1,7 +1,7 @@
 ﻿using SFA.DAS.ApplyService.Domain.Entities;
 using System;
 
-namespace SFA.DAS.ApplyService.InternalApi.Models.ApplyService
+namespace SFA.DAS.ApplyService.InternalApi.Models.ApplicationReview
 {
     public class UpdateAssessorReviewCommentsModel
     {

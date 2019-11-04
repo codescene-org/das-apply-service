@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.ApplyService.Application.Apply.ApplicationReview;
 using SFA.DAS.ApplyService.Domain.Entities;
-using SFA.DAS.ApplyService.InternalApi.Models.ApplyService;
+using SFA.DAS.ApplyService.InternalApi.Models.ApplicationReview;
 
 namespace SFA.DAS.ApplyService.InternalApi.Controllers
 {
@@ -95,6 +95,26 @@ namespace SFA.DAS.ApplyService.InternalApi.Controllers
         public async Task<ActionResult> UpdateAssessorModeration([FromRoute] Guid applicationId, [FromBody] UpdateAssessorModerationModel model)
         {
             var request = new UpdateAssessorModerationRequest(applicationId, model.AssessorModerationStatus);
+
+            await _mediator.Send(request);
+
+            return Ok();
+        }
+
+        [HttpPost("ApplicationReview/{applicationId:Guid}/UpdateLegalChecks")]
+        public async Task<ActionResult> UpdateApplicationReviewLegalChecks([FromRoute]Guid applicationId, [FromBody]LegalChecks model)
+        {
+            var request = new UpdateLegalChecksRequest(applicationId, model);
+
+            await _mediator.Send(request);
+
+            return Ok();
+        }
+
+        [HttpPost("ApplicationReview/{applicationId:Guid}/UpdateAddressChecks")]
+        public async Task<ActionResult> UpdateApplicationReviewAddressChecks([FromRoute]Guid applicationId, [FromBody]AddressChecks model)
+        {
+            var request = new UpdateAddressChecksRequest(applicationId, model);
 
             await _mediator.Send(request);
 

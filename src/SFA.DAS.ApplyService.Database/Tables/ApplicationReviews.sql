@@ -9,7 +9,9 @@
 	[AssessorModerationStatus] [nvarchar](20) NOT NULL,
 	[AssessorReview1Comments] [nvarchar](max) NULL,
 	[AssessorReview2Comments] [nvarchar](max) NULL,
- CONSTRAINT [PK_ApplicationReviews] PRIMARY KEY CLUSTERED 
+    [LegalChecks] NVARCHAR(MAX) NULL, 
+    [AddressChecks] NVARCHAR(MAX) NULL, 
+    CONSTRAINT [PK_ApplicationReviews] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY], 

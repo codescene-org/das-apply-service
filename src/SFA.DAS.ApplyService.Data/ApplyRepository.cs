@@ -27,7 +27,9 @@ namespace SFA.DAS.ApplyService.Data
             SqlMapper.AddTypeHandler(typeof(QnAData), new QnADataHandler());
             SqlMapper.AddTypeHandler(typeof(ApplicationData), new ApplicationDataHandler());
             SqlMapper.AddTypeHandler(typeof(FinancialApplicationGrade), new FinancialApplicationGradeDataHandler());
-            SqlMapper.AddTypeHandler(typeof(PageComments), new PageCommentHandler());
+            SqlMapper.AddTypeHandler(typeof(PageComments), new GenericTypeHandler<PageComments>());
+            SqlMapper.AddTypeHandler(typeof(LegalChecks), new GenericTypeHandler<LegalChecks>());
+            SqlMapper.AddTypeHandler(typeof(AddressChecks), new GenericTypeHandler<AddressChecks>());
         }
 
         public async Task<List<Domain.Entities.Application>> GetUserApplications(Guid userId)
@@ -1070,6 +1072,24 @@ namespace SFA.DAS.ApplyService.Data
             using (var connection = new SqlConnection(_config.SqlConnectionString))
             {
                 await connection.ExecuteAsync(@"UPDATE ApplicationReviews SET AssessorModerationStatus = @assessorModerationStatus WHERE ApplicationId = @applicationId", new { applicationId, assessorModerationStatus });
+            }
+        }
+
+        public async Task UpdateLegalChecks(Guid applicationId, LegalChecks legalChecks)
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                await connection.ExecuteAsync(@"UPDATE ApplicationReviews SET LegalChecks = @legalChecks WHERE ApplicationId = @applicationId", 
+                    new { applicationId, legalChecks });
+            }
+        }
+
+        public async Task UpdateAddressChecks(Guid applicationId, AddressChecks addressChecks)
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                await connection.ExecuteAsync(@"UPDATE ApplicationReviews SET AddressChecks = @addressChecks WHERE ApplicationId = @applicationId",
+                    new { applicationId, addressChecks });
             }
         }
     }

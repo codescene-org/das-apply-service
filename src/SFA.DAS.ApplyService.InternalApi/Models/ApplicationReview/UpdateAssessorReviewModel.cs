@@ -1,6 +1,6 @@
 ﻿using SFA.DAS.ApplyService.Domain.Entities;
 
-namespace SFA.DAS.ApplyService.InternalApi.Models.ApplyService
+namespace SFA.DAS.ApplyService.InternalApi.Models.ApplicationReview
 {
     public class UpdateAssessorReviewModel
     {

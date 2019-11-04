@@ -42,4 +42,49 @@ namespace SFA.DAS.ApplyService.Domain.Entities
         Review1 = 1,
         Review2 = 2
     }
+
+    public class LegalChecks
+    {
+        public DateTime CheckedAt { get; set; }
+        public UkrlpLegalCheck Ukrlp { get; set; }
+        public CompaniesHouseLegalCheck CompaniesHouse { get; set; }
+        public CharityCommissionLegalCheck CharityCommission { get; set; }
+    }
+
+    public class UkrlpLegalCheck
+    {
+        public string LegalName { get; set; }
+        public string TradingName { get; set; }
+        public string CompanyNumber { get; set; }
+        public string CharityRegNumber { get; set; }
+        public string Status { get; set; }
+    }
+
+    public class CompaniesHouseLegalCheck
+    {
+        public string LegalName { get; set; }
+        public string CompanyNumber { get; set; }
+        public string Status { get; set; }
+    }
+
+    public class CharityCommissionLegalCheck
+    {
+        public string LegalName { get; set; }
+        public string CharityRegNumber { get; set; }
+        public string Status { get; set; }
+    }
+
+    public class AddressChecks
+    {
+        public DateTime CheckedAt { get; set; }
+        public AddressCheck Ukrlp { get; set; }
+        public AddressCheck CompaniesHouse { get; set; }
+        public AddressCheck CharityCommission { get; set; }
+    }
+
+    public class AddressCheck
+    {
+        public IEnumerable<string> AddressLines { get; set; }
+        public string Postcode { get; set; }
+    }
 }

@@ -66,5 +66,7 @@ namespace SFA.DAS.ApplyService.Application.Apply
         Task UpdateApplicationReviewAssessor2Review(Guid applicationId, string assessor2ReviewStatus);
         Task UpdateApplicationReviewAssessor2Comments(Guid applicationId, PageComments assessorReview2Comments);
         Task UpdateApplicationReviewAssessorModeration(Guid applicationId, string assessorModerationStatus);
+        Task UpdateLegalChecks(Guid applicationId, LegalChecks legalChecks);
+        Task UpdateAddressChecks(Guid applicationId, AddressChecks legalChecks);
     }
 }
