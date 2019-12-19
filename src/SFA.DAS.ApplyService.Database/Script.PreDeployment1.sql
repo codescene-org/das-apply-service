@@ -1,6 +1,6 @@
 /* Add pre Deployment SQL here */
 
--- APR-1179 : Clear out old Apply tables. They'll no longer be required
+-- APR-1176 : Clear out old Apply tables. They'll no longer be required
 IF OBJECT_ID('dbo.ApplicationWorkflow', 'U') IS NOT NULL 
   DELETE FROM dbo.ApplicationWorkflow; 
 
