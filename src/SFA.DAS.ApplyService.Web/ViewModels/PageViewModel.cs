@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
-using SFA.DAS.ApplyService.Domain.Apply;
+using ValidationErrorDetail = SFA.DAS.ApplyService.Domain.Apply.ValidationErrorDetail;
 using SFA.DAS.ApplyService.Web.Configuration;
+
+using SFA.DAS.QnA.Api.Types.Page;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SFA.DAS.ApplyService.Web.ViewModels
 {
@@ -113,7 +116,7 @@ namespace SFA.DAS.ApplyService.Web.ViewModels
                 Options = q.Input.Options,
                 Validations = q.Input.Validations,
                 Value = page.AllowMultipleAnswers ? GetMultipleValue(page.PageOfAnswers.LastOrDefault()?.Answers, q, errorMessages) : answers?.SingleOrDefault(a => a?.QuestionId == q.QuestionId)?.Value,
-                JsonValue = page.AllowMultipleAnswers ? GetMultipleJsonValue(page.PageOfAnswers.LastOrDefault()?.Answers, q, errorMessages) : answers?.SingleOrDefault(a => a?.QuestionId == q.QuestionId)?.JsonValue,
+                JsonValue = page.AllowMultipleAnswers ? GetMultipleJsonValue(page.PageOfAnswers.LastOrDefault()?.Answers, q, errorMessages) : GetJsonValue(answers, q),
                 ErrorMessages = errorMessages?.Where(f => f.Field.Split("_Key_")[0] == q.QuestionId).ToList(),
                 SequenceId = int.Parse(SequenceId),
                 SectionId = SectionId,
@@ -188,10 +191,26 @@ namespace SFA.DAS.ApplyService.Web.ViewModels
         {
             if (errorMessages != null && errorMessages.Any())
             {
-                return answers?.LastOrDefault(a => a?.QuestionId == question.QuestionId)?.JsonValue;
+                return JsonConvert.SerializeObject(answers?.LastOrDefault(a => a?.QuestionId == question.QuestionId)?.Value);
             }
 
             return null;
+        }
+
+
+        private dynamic GetJsonValue(List<Answer> answers, Question question)
+        {
+            var json = answers?.SingleOrDefault(a => a?.QuestionId == question.QuestionId)?.Value;
+            try
+            {
+                JToken.Parse(json);
+                return JsonConvert.DeserializeObject<dynamic>(json);
+
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

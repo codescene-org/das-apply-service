@@ -10,15 +10,19 @@ namespace SFA.DAS.ApplyService.Application.Apply
 {
     public interface IApplyRepository
     {
-        Task<List<Domain.Entities.Application>> GetUserApplications(Guid userId);
-        Task<List<Domain.Entities.Application>> GetOrganisationApplications(Guid userId);
+        Task<List<Domain.Entities.Apply>> GetUserApplications(Guid userId);
+        Task<List<Domain.Entities.Apply>> GetOrganisationApplications(Guid userId);
+        Task<Domain.Entities.Apply> GetApplication(Guid applicationId);
+        Task<Guid> CreateApplication(Guid applicationId, ApplyData applyData, Guid organisationId, Guid createdBy);
+
+
+
         Task<ApplicationSection> GetSection(Guid applicationId, int sequenceId,  int sectionId, Guid? userId);
         Task<List<ApplicationSection>> GetSections(Guid applicationId, int sequenceId, Guid? userId);
         Task<List<ApplicationSection>> GetSections(Guid applicationId);
         Task<ApplicationSequence> GetSequence(Guid applicationId, int sequenceId, Guid? userId);
         Task<ApplicationSequence> GetActiveSequence(Guid applicationId);
         Task<List<Asset>> GetAssets();
-        Task<Guid> CreateApplication(Guid applicationId, string applicationType, Guid applyingOrganisationId, Guid userId, Guid workflowId);
         Task<Guid> GetLatestWorkflow(string applicationType);
         Task<List<ApplicationSection>> CopyWorkflowToApplication(Guid applicationId, Guid workflowId, string organisationType);
         Task UpdateSections(List<ApplicationSection> sections);
@@ -37,7 +41,6 @@ namespace SFA.DAS.ApplyService.Application.Apply
         Task<List<ApplicationSequence>> GetSequences(Guid applicationId);
         Task OpenSequence(Guid applicationId, int nextSequenceId);
         Task UpdateApplicationData(Guid applicationId, ApplicationData applicationData);
-        Task<Domain.Entities.Application> GetApplication(Guid requestApplicationId);
         Task UpdateApplicationStatus(Guid applicationId, string status);
         Task DeleteRelatedApplications(Guid applicationId);
 

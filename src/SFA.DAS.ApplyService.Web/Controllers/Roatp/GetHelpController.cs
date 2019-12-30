@@ -53,7 +53,7 @@ namespace SFA.DAS.ApplyService.Web.Controllers.Roatp
             var getHelpQuery = new GetHelpWithQuestion();
             var errorMessageKey = string.Format(GetHelpErrorMessageKey, pageId);
 
-            if (String.IsNullOrWhiteSpace(getHelp))
+            if (string.IsNullOrWhiteSpace(getHelp))
             {
                 _sessionService.Set(errorMessageKey, MinLengthErrorMessage);
                 var questionKey = string.Format(GetHelpQuestionKey, pageId);
@@ -71,13 +71,9 @@ namespace SFA.DAS.ApplyService.Web.Controllers.Roatp
 
             if (applicationId.HasValue && applicationId.Value != Guid.Empty)
             {
-                var sequences = await _qnaApiClient.GetSequences(applicationId.Value);
-                var currentSequence = sequences.Single(x => x.SequenceId == sequenceId);
-                var sections = await _qnaApiClient.GetSections(applicationId.Value, currentSequence.Id);
-                var currentSection = sections.FirstOrDefault(x => x.SectionId == sectionId);
-
+                var currentSection = await _qnaApiClient.GetSectionBySectionNo(applicationId.Value, sequenceId, sectionId);
                 var page = await _qnaApiClient.GetPage(applicationId.Value, currentSection.Id, pageId);
-                if (page == null || String.IsNullOrEmpty(page.Title))
+                if (page == null || string.IsNullOrEmpty(page.Title))
                 {
                     getHelpQuery.PageTitle = title;
                 }
@@ -96,7 +92,7 @@ namespace SFA.DAS.ApplyService.Web.Controllers.Roatp
                 }
 
                 var organisationName = await _qnaApiClient.GetAnswerByTag(applicationId.Value, RoatpWorkflowQuestionTags.UkrlpLegalName);
-                if (organisationName != null && !String.IsNullOrWhiteSpace(organisationName.Value))
+                if (organisationName != null && !string.IsNullOrWhiteSpace(organisationName.Value))
                 {
                     getHelpQuery.OrganisationName = organisationName.Value;
                 }
@@ -106,7 +102,7 @@ namespace SFA.DAS.ApplyService.Web.Controllers.Roatp
                 }
 
                 var organisationUKPRN = await _qnaApiClient.GetAnswerByTag(applicationId.Value, RoatpWorkflowQuestionTags.UKPRN);
-                if (organisationUKPRN != null && !String.IsNullOrWhiteSpace(organisationUKPRN.Value))
+                if (organisationUKPRN != null && !string.IsNullOrWhiteSpace(organisationUKPRN.Value))
                 {
                     getHelpQuery.UKPRN = organisationUKPRN.Value;
                 }
@@ -123,13 +119,13 @@ namespace SFA.DAS.ApplyService.Web.Controllers.Roatp
                 getHelpQuery.ApplicationSequence = "Preamble";
                 getHelpQuery.ApplicationSection = "Preamble";
                 var ukprn = applicationDetails?.UKPRN.ToString();
-                if (String.IsNullOrWhiteSpace(ukprn))
+                if (string.IsNullOrWhiteSpace(ukprn))
                 {
                     ukprn = "Not available";
                 }
                 getHelpQuery.UKPRN = ukprn;
                 var organisationName = applicationDetails?.UkrlpLookupDetails?.ProviderName;
-                if (String.IsNullOrWhiteSpace(organisationName))
+                if (string.IsNullOrWhiteSpace(organisationName))
                 {
                     organisationName = "Not available";
                 }

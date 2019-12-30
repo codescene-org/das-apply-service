@@ -20,8 +20,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.ApplyService.Application.Apply;
 using SFA.DAS.ApplyService.Application.Apply.Roatp;
-using StartApplicationRequest = SFA.DAS.ApplyService.Application.Apply.StartApplicationRequest;
-using StartApplicationResponse = SFA.DAS.ApplyService.Application.Apply.StartApplicationResponse;
 using SFA.DAS.ApplyService.Domain.Roatp;
 
 namespace SFA.DAS.ApplyService.InternalApi.Controllers
@@ -36,17 +34,36 @@ namespace SFA.DAS.ApplyService.InternalApi.Controllers
             _mediator = mediator;
         }
 
-        [HttpPost("Application/Start")]
-        public async Task<ActionResult<StartApplicationResponse>> Start([FromBody] StartApplyRequest request)
+        // TODO: Update Client with new types
+
+        [HttpGet("Applications/{userId}")]
+        public async Task<ActionResult<List<Domain.Entities.Apply>>> GetApplications(string userId)
         {
-            return await _mediator.Send(new StartApplicationRequest(request.ApplicationId, request.UserId, request.ApplicationType));
+            return await _mediator.Send(new GetApplicationsRequest(Guid.Parse(userId), true));
+        }
+
+        [HttpGet("Applications/{userId}/Organisation")]
+        public async Task<ActionResult<List<Domain.Entities.Apply>>> GetOrganisationApplications(string userId)
+        {
+            return await _mediator.Send(new GetApplicationsRequest(Guid.Parse(userId), false));
         }
 
         [HttpGet("Application/{applicationId}")]
-        public async Task<ActionResult<Domain.Entities.Application>> GetApplication(Guid applicationId)
+        public async Task<ActionResult<Domain.Entities.Apply>> GetApplication(Guid applicationId)
         {
             return await _mediator.Send(new GetApplicationRequest(applicationId));
         }
+
+        [HttpPost("Application/Start")]
+        public async Task<ActionResult<StartApplicationResponse>> Start([FromBody] StartApplicationRequest request)
+        {
+            return await _mediator.Send(request);
+        }
+
+
+
+
+
 
         [HttpGet("Answer/{QuestionIdentifier}/{applicationId}")]
         public async Task<ActionResult<GetAnswersResponse>> GetAnswer(Guid applicationId, string questionIdentifier)
@@ -60,17 +77,7 @@ namespace SFA.DAS.ApplyService.InternalApi.Controllers
             return await _mediator.Send(new GetAnswersRequest(applicationId, questionIdentifier, true));
         }
 
-        [HttpGet("Applications/{userId}")]
-        public async Task<ActionResult<List<Domain.Entities.Application>>> GetApplications(string userId)
-        {
-            return await _mediator.Send(new GetApplicationsRequest(Guid.Parse(userId), true));
-        }
 
-        [HttpGet("Applications/{userId}/Organisation")]
-        public async Task<ActionResult<List<Domain.Entities.Application>>> GetOrganisationApplications(string userId)
-        {
-            return await _mediator.Send(new GetApplicationsRequest(Guid.Parse(userId), false));
-        }
 
         [HttpGet("Application/{applicationId}/User/{userId}/Sections")]
         public async Task<ActionResult<ApplicationSequence>> GetActiveSequence(string applicationId, string userId)

@@ -6,10 +6,10 @@ namespace SFA.DAS.ApplyService.Web.ViewModels.Roatp
     using System.Linq;
     using Domain.Entities;
     using SFA.DAS.ApplyService.Application.Apply.Roatp;
-    using SFA.DAS.ApplyService.Domain.Apply;
     using SFA.DAS.ApplyService.Web.Configuration;
     using SFA.DAS.ApplyService.Web.Infrastructure;
     using SFA.DAS.ApplyService.Web.Services;
+    using Answer = SFA.DAS.QnA.Api.Types.Page.Answer;
 
     public class TaskListViewModel : ApplicationSummaryViewModel
     {

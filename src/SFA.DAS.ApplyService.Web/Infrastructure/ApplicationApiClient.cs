@@ -7,12 +7,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApplyService.Application.Apply;
-using SFA.DAS.ApplyService.Application.Apply.UpdatePageAnswers;
 using SFA.DAS.ApplyService.Configuration;
 using SFA.DAS.ApplyService.Domain.Apply;
 using SFA.DAS.ApplyService.Domain.Entities;
 using SFA.DAS.ApplyService.InternalApi.Types;
-using StartApplicationResponse = SFA.DAS.ApplyService.Application.Apply.StartApplicationResponse;
 
 namespace SFA.DAS.ApplyService.Web.Infrastructure
 {
@@ -36,21 +34,38 @@ namespace SFA.DAS.ApplyService.Web.Infrastructure
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _tokenService.GetToken());
         }
 
-        public async Task<List<Domain.Entities.Application>> GetApplications(Guid userId, bool createdBy)
+        public async Task<Domain.Entities.Apply> GetApplication(Guid applicationId)
+        {
+            return await (await _httpClient.GetAsync($"Application/{applicationId}")).Content
+                .ReadAsAsync<Domain.Entities.Apply>();
+        }
+
+        public async Task<List<Domain.Entities.Apply>> GetApplications(Guid userId, bool createdBy)
         {
             if (!createdBy)
             {
                 return await (await _httpClient.GetAsync($"/Applications/{userId}/Organisation")).Content
-                .ReadAsAsync<List<Domain.Entities.Application>>();
+                .ReadAsAsync<List<Domain.Entities.Apply>>();
             }
 
             return await (await _httpClient.GetAsync($"/Applications/{userId}")).Content
-                .ReadAsAsync<List<Domain.Entities.Application>>();
+                .ReadAsAsync<List<Domain.Entities.Apply>>();
         }
 
-       
+        public async Task<StartApplicationResponse> StartApplication(StartApplicationRequest startApplicationRequest)
+        {
+            var httpResponse = await _httpClient.PostAsJsonAsync("/Application/Start", startApplicationRequest);
+            var startApplicationResponse = await httpResponse.Content.ReadAsAsync<StartApplicationResponse>();
+            return startApplicationResponse;
+        }
 
-        
+
+
+
+
+
+
+        // NOTE: This is old stuff or things which are not migrated over yet
         public async Task<ApplicationSequence> GetSequence(Guid applicationId, Guid userId)
         {
             return await (await _httpClient.GetAsync($"Application/{applicationId}/User/{userId}/Sections")).Content
@@ -94,19 +109,7 @@ namespace SFA.DAS.ApplyService.Web.Infrastructure
                 .ReadAsAsync<SetPageAnswersResponse>();
         }
 
-        public async Task<StartApplicationResponse> StartApplication(Guid userId, string applicationType)
-        {
-            return await StartApplication(Guid.NewGuid(), userId, applicationType);
-        }
 
-        public async Task<StartApplicationResponse> StartApplication(Guid applicationId, Guid userId, string applicationType)
-        {
-            var request = new StartApplyRequest { ApplicationId = applicationId, UserId = userId, ApplicationType = applicationType };
-
-            var httpResponse = await _httpClient.PostAsJsonAsync("/Application/Start", request);
-            var startApplicationResponse = await httpResponse.Content.ReadAsAsync<StartApplicationResponse>();
-            return startApplicationResponse;
-        }
 
         public async Task<bool> Submit(Guid applicationId, int sequenceId, Guid userId, string userEmail)
         {
@@ -143,12 +146,6 @@ namespace SFA.DAS.ApplyService.Web.Infrastructure
             await _httpClient.PostAsJsonAsync($"/Application/{applicationId}/UpdateApplicationData", applicationData);
         }
 
-        public async Task<Domain.Entities.Application> GetApplication(Guid applicationId)
-        {
-            return await (await _httpClient.GetAsync($"Application/{applicationId}")).Content
-                .ReadAsAsync<Domain.Entities.Application>();
-        }
-
         public async Task<string> GetApplicationStatus(Guid applicationId, int standardCode)
         {
             return await(await _httpClient.GetAsync(
@@ -160,9 +157,9 @@ namespace SFA.DAS.ApplyService.Web.Infrastructure
             return await(await _httpClient.GetAsync("all-standards")).Content.ReadAsAsync<List<StandardCollation>>();
         }
 
-        public async Task<List<Option>> GetQuestionDataFedOptions(string dataEndpoint)
+        public async Task<List<SFA.DAS.QnA.Api.Types.Page.Option>> GetQuestionDataFedOptions(string dataEndpoint)
         {
-            return await(await _httpClient.GetAsync($"QuestionOptions/{dataEndpoint}")).Content.ReadAsAsync<List<Option>>();
+            return await(await _httpClient.GetAsync($"QuestionOptions/{dataEndpoint}")).Content.ReadAsAsync<List<SFA.DAS.QnA.Api.Types.Page.Option>>();
         }
 
         public async Task DeleteFile(Guid applicationId, Guid userId, int sequenceId, int sectionId, string pageId, string questionId)

@@ -23,7 +23,11 @@ namespace SFA.DAS.ApplyService.Data
         public ApplyRepository(IConfigurationService configurationService, ILogger<ApplyRepository> logger)
         {
             _logger = logger;
-            _config = configurationService.GetConfig().Result;
+            _config = configurationService.GetConfig().GetAwaiter().GetResult();
+
+            SqlMapper.AddTypeHandler(typeof(ApplyData), new ApplyDataHandler());
+
+
             SqlMapper.AddTypeHandler(typeof(OrganisationDetails), new OrganisationDetailsHandler());
             SqlMapper.AddTypeHandler(typeof(QnAData), new QnADataHandler());
             SqlMapper.AddTypeHandler(typeof(ApplicationData), new ApplicationDataHandler());
@@ -31,25 +35,59 @@ namespace SFA.DAS.ApplyService.Data
             SqlMapper.AddTypeHandler(typeof(FinancialApplicationGrade), new FinancialApplicationGradeDataHandler());
         }
 
-        public async Task<List<Domain.Entities.Application>> GetUserApplications(Guid userId)
+        public async Task<List<Domain.Entities.Apply>> GetUserApplications(Guid userId)
         {
             using (var connection = new SqlConnection(_config.SqlConnectionString))
             {
-                return (await connection.QueryAsync<Domain.Entities.Application>(@"SELECT a.* FROM Contacts c
-                                                    INNER JOIN Applications a ON a.ApplyingOrganisationId = c.ApplyOrganisationID
+                return (await connection.QueryAsync<Domain.Entities.Apply>(@"SELECT a.* FROM Contacts c
+                                                    INNER JOIN Apply a ON a.OrganisationId = c.OrganisationId
                                                     WHERE c.Id = @userId AND a.CreatedBy = @userId", new { userId })).ToList();
             }
         }
 
-        public async Task<List<Domain.Entities.Application>> GetOrganisationApplications(Guid userId)
+        public async Task<List<Domain.Entities.Apply>> GetOrganisationApplications(Guid userId)
         {
             using (var connection = new SqlConnection(_config.SqlConnectionString))
             {
-                return (await connection.QueryAsync<Domain.Entities.Application>(@"SELECT a.* FROM Contacts c
-                                                    INNER JOIN Applications a ON a.ApplyingOrganisationId = c.ApplyOrganisationID
+                return (await connection.QueryAsync<Domain.Entities.Apply>(@"SELECT a.* FROM Contacts c
+                                                    INNER JOIN Apply a ON a.OrganisationId = c.OrganisationId
                                                     WHERE c.Id = @userId", new { userId })).ToList();
             }
         }
+
+        public async Task<Domain.Entities.Apply> GetApplication(Guid applicationId)
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                var application = await connection.QuerySingleOrDefaultAsync<Domain.Entities.Apply>(@"SELECT * FROM Apply WHERE ApplicationId = @applicationId", new { applicationId });
+
+                //if (application != null)
+                //{
+                //    application.Organisation = await GetOrganisationForApplication(applicationId);
+                //}
+
+                return application;
+            }
+        }
+
+        public async Task<Guid> CreateApplication(Guid applicationId, ApplyData applyData, Guid organisationId, Guid createdBy)
+        {
+            using (var connection = new SqlConnection(_config.SqlConnectionString))
+            {
+                return await connection.QuerySingleAsync<Guid>(
+                    @"INSERT INTO Apply (ApplicationId, OrganisationId, ApplicationStatus, ApplyData, ReviewStatus, CreatedBy, CreatedAt)
+                                        OUTPUT INSERTED.[ApplicationId] 
+                                        VALUES (@applicationId, @organisationId, @applicationStatus, @applyData, @reviewStatus, @createdBy, GETUTCDATE())",
+                    new { applicationId, organisationId, applicationStatus = "In Progress", applyData, reviewStatus = "Draft", createdBy });
+            }
+        }
+
+
+
+
+
+
+        // NOTE: This is old stuff or things which are not migrated over yet
 
         public async Task<ApplicationSection> GetSection(Guid applicationId, int sequenceId, int sectionId, Guid? userId)
         {
@@ -185,19 +223,7 @@ namespace SFA.DAS.ApplyService.Data
             }
         }
 
-        public async Task<Guid> CreateApplication(Guid applicationId, string applicationType, Guid applyingOrganisationId, Guid userId,
-            Guid workflowId)
-        {
-            using (var connection = new SqlConnection(_config.SqlConnectionString))
-            {
-                await connection.ExecuteAsync(
-                    @"INSERT INTO Applications (Id, ApplyingOrganisationId, ApplicationStatus, CreatedAt, CreatedBy, CreatedFromWorkflowId)                                       
-                                        VALUES (@applicationId, @ApplyingOrganisationId, @applicationStatus, GETUTCDATE(), @userId, @workflowId)",
-                    new {applicationId, applyingOrganisationId, userId, workflowId, applicationStatus = ApplicationStatus.InProgress});
 
-                return await Task.FromResult(applicationId);
-            }
-        }
 
         public async Task<Guid> GetLatestWorkflow(string applicationType)
         {
@@ -458,21 +484,6 @@ namespace SFA.DAS.ApplyService.Data
                                                 SET    ApplicationData = @applicationData
                                                 WHERE  Applications.Id = @applicationId",
                     new {applicationId, applicationData});
-            }
-        }
-
-        public async Task<Domain.Entities.Application> GetApplication(Guid applicationId)
-        {
-            using (var connection = new SqlConnection(_config.SqlConnectionString))
-            {
-                var application = await connection.QuerySingleOrDefaultAsync<Domain.Entities.Application>(@"SELECT * FROM Applications WHERE Id = @applicationId", new {applicationId});
-
-                if(application != null)
-                {
-                    application.ApplyingOrganisation = await GetOrganisationForApplication(applicationId);
-                }
-
-                return application;
             }
         }
 

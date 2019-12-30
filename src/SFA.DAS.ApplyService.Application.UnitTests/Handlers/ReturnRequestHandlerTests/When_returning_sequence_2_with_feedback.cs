@@ -10,25 +10,25 @@ namespace SFA.DAS.ApplyService.Application.UnitTests.Handlers.ReturnRequestHandl
 {
     public class When_returning_sequence_2_with_feedback : ReturnRequestHandlerTestsBase
     {
-        [Test]
-        public void Then_The_Sequence_Remains_Open_And_Status_Is_FeedbackAdded()
-        {
-            var request = new ReturnRequest(Guid.NewGuid(), 2, "ReturnWithFeedback");
+        //[Test]
+        //public void Then_The_Sequence_Remains_Open_And_Status_Is_FeedbackAdded()
+        //{
+        //    var request = new ReturnRequest(Guid.NewGuid(), 2, "ReturnWithFeedback");
 
-            Handler.Handle(request, new CancellationToken()).Wait();
+        //    Handler.Handle(request, new CancellationToken()).Wait();
 
-            ApplyRepository.Verify(r => r.UpdateSequenceStatus(request.ApplicationId, request.SequenceId, ApplicationSequenceStatus.FeedbackAdded, ApplicationStatus.FeedbackAdded), Times.Once);
-            ApplyRepository.Verify(r => r.CloseSequence(request.ApplicationId, request.SequenceId), Times.Never);
-        }
+        //    ApplyRepository.Verify(r => r.UpdateSequenceStatus(request.ApplicationId, request.SequenceId, ApplicationSequenceStatus.FeedbackAdded, ApplicationStatus.FeedbackAdded), Times.Once);
+        //    ApplyRepository.Verify(r => r.CloseSequence(request.ApplicationId, request.SequenceId), Times.Never);
+        //}
 
-        [Test]
-        public void Then_The_APPLY_EPAO_RESPONSE_Email_Is_Sent()
-        {
-            var request = new ReturnRequest(Guid.NewGuid(), 2, "ReturnWithFeedback");
+        //[Test]
+        //public void Then_The_APPLY_EPAO_RESPONSE_Email_Is_Sent()
+        //{
+        //    var request = new ReturnRequest(Guid.NewGuid(), 2, "ReturnWithFeedback");
 
-            Handler.Handle(request, new CancellationToken()).Wait();
+        //    Handler.Handle(request, new CancellationToken()).Wait();
 
-            EmailService.Verify(r => r.SendEmailToContact(EmailTemplateName.APPLY_EPAO_RESPONSE, It.IsAny<Contact>(), It.IsAny<object>()), Times.Once);
-        }
+        //    EmailService.Verify(r => r.SendEmailToContact(EmailTemplateName.APPLY_EPAO_RESPONSE, It.IsAny<Contact>(), It.IsAny<object>()), Times.Once);
+        //}
     }
 }

@@ -9,8 +9,6 @@ using SFA.DAS.ApplyService.Domain.Apply;
 using SFA.DAS.ApplyService.Domain.Entities;
 using SFA.DAS.ApplyService.InternalApi.Types;
 
-using StartApplicationResponse = SFA.DAS.ApplyService.Application.Apply.StartApplicationResponse;
-
 namespace SFA.DAS.ApplyService.Web.Infrastructure
 {
     using Application.Apply.GetAnswers;
@@ -18,7 +16,11 @@ namespace SFA.DAS.ApplyService.Web.Infrastructure
 
     public interface IApplicationApiClient
     {
-        Task<List<Domain.Entities.Application>> GetApplications(Guid userId, bool createdBy);
+        Task<Domain.Entities.Apply> GetApplication(Guid applicationId);
+        Task<List<Domain.Entities.Apply>> GetApplications(Guid userId, bool createdBy);
+        Task<StartApplicationResponse> StartApplication(StartApplicationRequest startApplicationRequest);
+
+
         Task<ApplicationSequence> GetSequence(Guid applicationId, Guid userId);
         Task<IEnumerable<ApplicationSequence>> GetSequences(Guid applicationId);
         Task<ApplicationSection> GetSection(Guid applicationId, int sequenceId, int sectionId, Guid userId);
@@ -28,18 +30,16 @@ namespace SFA.DAS.ApplyService.Web.Infrastructure
         Task<SetPageAnswersResponse> UpdatePageAnswers(Guid applicationId, Guid userId, int sequenceId, int sectionId,
             string pageId, List<Answer> answers, bool saveNewAnswers);
 
-        Task<StartApplicationResponse> StartApplication(Guid userId, string applicationType);
-        Task<StartApplicationResponse> StartApplication(Guid applicationId, Guid userId, string applicationType);
         Task<bool> Submit(Guid applicationId, int sequenceId, Guid userId, string userEmail);
         Task DeleteAnswer(Guid applicationId, int sequenceId, int sectionId, string pageId, Guid answerId, Guid userId);
         Task ImportWorkflow(IFormFile file);
         Task UpdateApplicationData<T>(T applicationData, Guid applicationId);
-        Task<Domain.Entities.Application> GetApplication(Guid applicationId);
+        
        
         Task<string> GetApplicationStatus(Guid applicationId, int standardCode);
 
         Task<List<StandardCollation>> GetStandards();
-        Task<List<Option>> GetQuestionDataFedOptions(string dataEndpoint);
+        Task<List<SFA.DAS.QnA.Api.Types.Page.Option>> GetQuestionDataFedOptions(string dataEndpoint);
         Task DeleteFile(Guid applicationId, Guid userId, int sequenceId, int sectionId, string pageId, string questionId);
         Task<Organisation> GetOrganisationByUserId(Guid userId);
         Task<Organisation> GetOrganisationByUkprn(string ukprn);
